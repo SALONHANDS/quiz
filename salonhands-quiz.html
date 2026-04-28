@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SALONHANDS — 두피 & 모발 진단</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --white: #FFFFFF;
+    --off-white: #F7F5F0;
+    --cream: #EEE9E0;
+    --forest-deep: #1A2A1A;
+    --forest: #2D4A2D;
+    --forest-mid: #3D6B3D;
+    --forest-light: #5A8F5A;
+    --forest-pale: #A8C8A8;
+    --forest-ghost: #D5E8D5;
+    --forest-mist: #EAF3EA;
+    --gold: #B8974A;
+    --gold-light: #D4B877;
+    --text-dark: #1A2A1A;
+    --text-mid: #3D5A3D;
+    --text-light: #6A8A6A;
+    --border: rgba(45,74,45,0.15);
+    --border-strong: rgba(45,74,45,0.3);
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    font-family: 'Jost', sans-serif;
+    background: var(--off-white);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* ─── LAYOUT ─── */
+  .screen {
+    width: 100%; min-height: 100vh;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    position: relative;
+  }
+  .screen.active { display: flex; }
+
+  /* ─── DECORATIVE BG ─── */
+  .bg-pattern {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 10% 20%, rgba(90,143,90,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 90% 80%, rgba(45,74,45,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 50% 50%, rgba(184,151,74,0.03) 0%, transparent 60%);
+  }
+
+  /* ─── LOGO ─── */
+  .logo {
+    font-family: 'Jost', sans-serif;
+    font-weight: 200;
+    letter-spacing: 0.35em;
+    font-size: clamp(14px, 2vw, 18px);
+    color: var(--forest);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    margin: 0 auto 0.75rem;
+  }
+  .tagline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(13px, 1.8vw, 16px);
+    color: var(--forest-light);
+    letter-spacing: 0.1em;
+  }
+
+  /* ─── INTRO SCREEN ─── */
+  #screen-intro {
+    background: linear-gradient(165deg, #F0F5F0 0%, #F7F5F0 50%, #EFF4EF 100%);
+  }
+  .intro-inner {
+    position: relative; z-index: 1;
+    text-align: center;
+    max-width: 640px;
+    width: 100%;
+  }
+  .intro-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.15;
+    color: var(--forest-deep);
+    margin: 1.5rem 0 1rem;
+  }
+  .intro-sub {
+    font-weight: 300;
+    font-size: clamp(13px, 1.8vw, 15px);
+    color: var(--text-mid);
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+  }
+  .intro-pills {
+    display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .pill {
+    background: var(--forest-mist);
+    border: 1px solid var(--forest-ghost);
+    border-radius: 100px;
+    padding: 0.4rem 1rem;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--forest);
+  }
+
+  /* ─── BTN ─── */
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 0.75rem;
+    background: var(--forest);
+    color: var(--white);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1rem 2.5rem;
+    border: none; border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.25s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--forest-mid); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: transparent;
+    color: var(--forest);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { background: var(--forest-mist); border-color: var(--forest-light); }
+
+  /* ─── QUIZ SCREEN ─── */
+  #screen-quiz {
+    background: var(--white);
+    padding: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+  .quiz-header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(4px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .progress-wrap {
+    flex: 1; max-width: 280px; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  }
+  .progress-bar {
+    width: 100%; height: 2px;
+    background: var(--forest-ghost);
+    border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--forest-mid), var(--gold));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+  .progress-text {
+    font-size: 11px; font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--text-light);
+  }
+
+  .quiz-body {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 3rem 1.5rem 4rem;
+    max-width: 700px; margin: 0 auto; width: 100%;
+  }
+
+  .q-hint {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(14px, 2vw, 17px);
+    color: var(--forest-light);
+    text-align: center;
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+  .q-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(22px, 4vw, 36px);
+    color: var(--forest-deep);
+    text-align: center;
+    line-height: 1.3;
+    margin-bottom: 2.5rem;
+  }
+
+  /* ─── OPTIONS ─── */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+    width: 100%;
+    margin-bottom: 2.5rem;
+  }
+  .options-grid.single-col { grid-template-columns: 1fr; }
+  .options-grid.two-col-narrow { grid-template-columns: 1fr 1fr; max-width: 380px; margin-left: auto; margin-right: auto; }
+
+  .opt-card {
+    background: var(--off-white);
+    border: 1.5px solid transparent;
+    border-radius: 4px;
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.22s;
+    text-align: left;
+    display: flex; flex-direction: column; gap: 0.3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .opt-card::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(45,74,45,0.04) 0%, transparent 60%);
+    opacity: 0; transition: opacity 0.22s;
+  }
+  .opt-card:hover { border-color: var(--forest-pale); background: var(--forest-mist); }
+  .opt-card:hover::before { opacity: 1; }
+  .opt-card.selected {
+    border-color: var(--forest);
+    background: var(--forest-mist);
+  }
+  .opt-card.selected::after {
+    content: '✓';
+    position: absolute; top: 0.75rem; right: 0.75rem;
+    width: 20px; height: 20px;
+    background: var(--forest);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 500;
+    display: grid; place-items: center;
+  }
+  .opt-label {
+    font-weight: 400; font-size: 15px;
+    color: var(--text-dark);
+    letter-spacing: 0.02em;
+  }
+  .opt-sub {
+    font-size: 12px; font-weight: 300;
+    color: var(--text-light);
+    line-height: 1.5;
+  }
+
+  /* ─── NAV ─── */
+  .quiz-nav {
+    display: flex; gap: 1rem; align-items: center; justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* ─── RESULT SCREEN ─── */
+  #screen-result {
+    background: linear-gradient(165deg, #F0F5F0 0%, #F7F5F0 60%, #EFF4EF 100%);
+    padding: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .result-inner {
+    max-width: 760px; margin: 0 auto; width: 100%;
+    padding: 3rem 1.5rem 5rem;
+    position: relative; z-index: 1;
+  }
+
+  .result-logo-row {
+    text-align: center; margin-bottom: 2.5rem;
+  }
+
+  /* scalp type badge */
+  .scalp-badge {
+    display: inline-block;
+    background: var(--forest);
+    color: var(--white);
+    font-family: 'Jost', sans-serif;
+    font-weight: 200;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 0.4rem 1.25rem;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+  }
+
+  .result-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(22px, 3.5vw, 36px);
+    color: var(--forest-deep);
+    text-align: center;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+  }
+  .result-sub {
+    font-size: 13px; font-weight: 300;
+    color: var(--text-light);
+    text-align: center;
+    letter-spacing: 0.08em;
+    margin-bottom: 2.5rem;
+  }
+
+  .result-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+    margin: 2rem 0;
+  }
+
+  /* insight cards */
+  .insight-section { margin-bottom: 2rem; }
+  .insight-section-title {
+    font-size: 10px; font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 0.85rem;
+  }
+
+  .insight-row {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .insight-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0; margin-top: 0.45rem;
+  }
+  .insight-dot.good { background: var(--forest-mid); }
+  .insight-dot.warn { background: var(--gold); }
+
+  .insight-kw {
+    font-size: 12px; font-weight: 500;
+    color: var(--forest);
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.05em;
+  }
+  .insight-text {
+    font-size: 13px; font-weight: 300;
+    color: var(--text-mid);
+    line-height: 1.65;
+  }
+
+  /* care steps */
+  .steps-list { counter-reset: steps; }
+  .step-row {
+    display: flex; gap: 1rem; align-items: flex-start;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.6rem;
+    counter-increment: steps;
+  }
+  .step-num {
+    width: 24px; height: 24px;
+    border: 1px solid var(--forest-pale);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 400;
+    color: var(--forest);
+  }
+  .step-title {
+    font-size: 13px; font-weight: 500;
+    color: var(--forest-deep);
+    margin-bottom: 0.2rem;
+  }
+  .step-text {
+    font-size: 13px; font-weight: 300;
+    color: var(--text-mid);
+    line-height: 1.65;
+  }
+
+  /* routine title */
+  .routine-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    font-size: clamp(18px, 2.5vw, 24px);
+    color: var(--forest-deep);
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .routine-title::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: var(--border);
+  }
+
+  /* product cards */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 500px) {
+    .products-grid { grid-template-columns: 1fr; }
+    .options-grid { grid-template-columns: 1fr; }
+    .options-grid.two-col-narrow { grid-template-columns: 1fr 1fr; }
+  }
+
+  .product-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+    position: relative;
+  }
+  .product-step-label {
+    font-size: 10px; font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+  }
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--forest-deep);
+    line-height: 1.3;
+    margin-bottom: 0.35rem;
+  }
+  .product-vol {
+    font-size: 11px; font-weight: 300;
+    color: var(--text-light);
+    letter-spacing: 0.06em;
+  }
+  .product-tag {
+    display: inline-block;
+    background: var(--forest-mist);
+    border: 1px solid var(--forest-ghost);
+    color: var(--forest);
+    font-size: 10px; font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+    margin-top: 0.5rem;
+  }
+
+  /* dandruff tip */
+  .tip-box {
+    background: rgba(45,74,45,0.05);
+    border: 1px solid var(--forest-ghost);
+    border-left: 3px solid var(--forest);
+    border-radius: 4px;
+    padding: 0.85rem 1rem;
+    font-size: 13px; font-weight: 300;
+    color: var(--text-mid);
+    line-height: 1.65;
+    margin-top: 0.75rem;
+  }
+  .tip-box strong {
+    font-weight: 500;
+    color: var(--forest);
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* restart */
+  .restart-row {
+    text-align: center; margin-top: 3rem;
+    display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+  }
+
+  /* ─── TRANSITIONS ─── */
+  .fade-in { animation: fadeIn 0.45s ease forwards; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 16:9 hint wrapper for kiosk use */
+  body { min-height: 100vh; }
+</style>
+</head>
+<body>
+
+<div class="bg-pattern"></div>
+
+<!-- ══════════ INTRO ══════════ -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-inner fade-in">
+    <svg class="logo-mark" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 3C14 3 6 8 6 15C6 19.4 9.6 23 14 23C18.4 23 22 19.4 22 15C22 8 14 3 14 3Z" fill="#2D4A2D" fill-opacity="0.15" stroke="#2D4A2D" stroke-width="1"/>
+      <path d="M14 8C14 8 10 11 10 15C10 17.2 11.8 19 14 19C16.2 19 18 17.2 18 15C18 11 14 8 14 8Z" fill="#2D4A2D" fill-opacity="0.3"/>
+      <circle cx="14" cy="15" r="2.5" fill="#2D4A2D"/>
+    </svg>
+    <div class="logo">SALONHANDS</div>
+    <div class="tagline">K-Scalp &amp; Hair Care</div>
+
+    <h1 class="intro-headline">두피와 모발을<br>위한 맞춤 진단</h1>
+    <p class="intro-sub">
+      몇 가지 질문에 답하시면<br>
+      당신의 두피 타입에 맞는 케어 루틴과<br>추천 제품을 알려드립니다.
+    </p>
+
+    <div class="intro-pills">
+      <span class="pill">6–7 Questions</span>
+      <span class="pill">Instant Results</span>
+      <span class="pill">Vegan Formula</span>
+    </div>
+
+    <button class="btn-primary" onclick="startQuiz()">
+      진단 시작하기
+      <span style="font-size:16px;">→</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════ QUIZ ══════════ -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-header">
+    <button class="btn-ghost" onclick="goBack()" style="padding:0.5rem 0.85rem; font-size:11px;">← 이전</button>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-text" id="progress-text">1 / 6</div>
+    </div>
+    <div style="width:80px"></div>
+  </div>
+
+  <div class="quiz-body">
+    <div id="q-area"></div>
+  </div>
+</div>
+
+<!-- ══════════ RESULT ══════════ -->
+<div class="screen" id="screen-result">
+  <div class="result-inner fade-in" id="result-content"></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   DATA
+══════════════════════════════════════════════ */
+const questions = [
+  {
+    id: 'scalp_feel',
+    hint: '머리를 감고 하루가 지나면 어떤가요?',
+    title: '두피와 모발의 상태는?',
+    type: 'single',
+    layout: 'two',
+    opts: [
+      { val:'dry',       label:'건성',   sub:'기름 생성이 느리고 모발이 푸석해요' },
+      { val:'oily',      label:'지성',   sub:'기름 생성이 빠르고 모발이 눌러붙어요' },
+      { val:'sensitive', label:'민감',   sub:'가렵고 염증이 자주 생겨요' },
+      { val:'balanced',  label:'정상',   sub:'유수분이 적당하고 모발이 부드러워요' },
+    ]
+  },
+  {
+    id: 'wash_time',
+    hint: '세정 타이밍은 두피 건강에 큰 영향을 줍니다.',
+    title: '샴푸는 주로 언제 하시나요?',
+    type: 'single',
+    layout: 'two',
+    opts: [
+      { val:'night',   label:'저녁·밤',       sub:'자기 전 머리 감는 편' },
+      { val:'morning', label:'아침',           sub:'기상 후 머리 감는 편' },
+      { val:'both',    label:'아침·저녁 모두', sub:'하루 두 번' },
+      { val:'varies',  label:'그때그때 다름',  sub:'일정하지 않음' },
+    ]
+  },
+  {
+    id: 'dandruff_yn',
+    hint: '평소 각질이나 비듬이 신경 쓰이시나요?',
+    title: '비듬이 있나요?',
+    type: 'single',
+    layout: 'narrow',
+    opts: [
+      { val:'yes', label:'있다' },
+      { val:'no',  label:'없다' },
+    ]
+  },
+  {
+    id: 'dandruff_type',
+    hint: '가장 가까운 것을 골라주세요.',
+    title: '비듬 상태는?',
+    type: 'single',
+    layout: 'two',
+    conditional: a => a.dandruff_yn === 'yes',
+    opts: [
+      { val:'dry_flake',   label:'하얀 가루',  sub:'작고 건조한 가루 (건성 신호)' },
+      { val:'big_flake',   label:'큰 각질',    sub:'큼직한 각질 (민감성 신호)' },
+      { val:'oily_flake',  label:'기름진 가루', sub:'노란색·떡진 가루 (지성 신호)' },
+      { val:'pore_flake',  label:'피지 과다',  sub:'모공 주변 피지 함께 (비듬성 신호)' },
+    ]
+  },
+  {
+    id: 'hair_loss',
+    hint: '샴푸하거나 빗질할 때를 떠올려보세요.',
+    title: '머리카락이 많이 빠지나요?',
+    type: 'single',
+    layout: 'narrow',
+    opts: [
+      { val:'yes', label:'네' },
+      { val:'no',  label:'아니요' },
+    ]
+  },
+  {
+    id: 'dry_method',
+    hint: '해당하는 방법을 모두 선택해 주세요.',
+    title: '머리는 어떻게 말리시나요?',
+    type: 'multi',
+    layout: 'two',
+    opts: [
+      { val:'dryer_hot',  label:'드라이기 — 뜨거운 바람', sub:'빠른 건조로 수분 손상을 줄여요' },
+      { val:'dryer_cool', label:'드라이기 — 찬 바람',     sub:'열 손상 없이 빠르게 말릴 수 있어요' },
+      { val:'air_dry',    label:'자연 건조',               sub:'젖은 상태가 길면 모발이 약해질 수 있어요' },
+      { val:'towel',      label:'수건 건조',               sub:'살살 눌러 닦아주세요' },
+      { val:'no_dry',     label:'말리지 않는다',           sub:'젖은 모발이 가장 약한 상태예요' },
+    ]
+  },
+  {
+    id: 'goal',
+    hint: '해당하는 것을 모두 선택해 주세요.',
+    title: '평소 고민은 무엇인가요?',
+    type: 'multi',
+    layout: 'two',
+    opts: [
+      { val:'cleansing', label:'두피 정화', sub:'각질, 피지, 노폐물을 깨끗이' },
+      { val:'hair_loss', label:'탈모',      sub:'빠짐을 줄이고 뿌리를 강화' },
+      { val:'volume',    label:'볼륨',      sub:'납작한 뿌리에 탄력과 풍성함' },
+      { val:'repair',    label:'손상모',    sub:'손상된 모발을 되살리고 싶음' },
+    ]
+  }
+];
+
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let answers = {};
+let qHistory = [];   // stack of question ids shown
+
+function getActiveQuestions() {
+  return questions.filter(q => !q.conditional || q.conditional(answers));
+}
+
+function getCurrentQ() {
+  return qHistory.length ? questions.find(q => q.id === qHistory[qHistory.length-1]) : null;
+}
+
+function startQuiz() {
+  answers = {}; qHistory = [];
+  show('quiz');
+  pushNextQuestion();
+}
+
+function pushNextQuestion() {
+  const active = getActiveQuestions();
+  const shown = new Set(qHistory);
+  const next = active.find(q => !shown.has(q.id));
+  if (!next) { showResult(); return; }
+  qHistory.push(next.id);
+  renderQuestion(next);
+}
+
+function renderQuestion(q) {
+  const active = getActiveQuestions();
+  const idx = active.findIndex(x => x.id === q.id);
+  const total = active.length;
+  document.getElementById('progress-fill').style.width = ((idx / total) * 100) + '%';
+  document.getElementById('progress-text').textContent = `${idx+1} / ${total}`;
+
+  const sel = answers[q.id] || (q.type === 'multi' ? [] : null);
+
+  let optsHTML = q.opts.map(o => {
+    const isSelected = q.type === 'multi'
+      ? (sel && sel.includes(o.val))
+      : sel === o.val;
+    return `<div class="opt-card${isSelected?' selected':''}" 
+                 onclick="selectOpt('${q.id}','${o.val}','${q.type}')"
+                 data-val="${o.val}">
+      <div class="opt-label">${o.label}</div>
+      ${o.sub ? `<div class="opt-sub">${o.sub}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  const gridClass = q.layout === 'narrow' ? 'two-col-narrow' :
+                    q.layout === 'two' ? '' : 'single-col';
+  const multiNote = q.type === 'multi'
+    ? `<p style="font-size:11px;color:var(--text-light);letter-spacing:0.08em;text-align:center;margin-bottom:1rem;">복수 선택 가능</p>` : '';
+
+  document.getElementById('q-area').innerHTML = `
+    <div class="fade-in">
+      <div class="q-hint">${q.hint}</div>
+      <h2 class="q-title">${q.title}</h2>
+      ${multiNote}
+      <div class="options-grid ${gridClass}">${optsHTML}</div>
+      ${q.type==='multi'
+        ? `<div class="quiz-nav">
+             <button class="btn-primary" onclick="confirmMulti('${q.id}')">다음 →</button>
+           </div>`
+        : ''}
+    </div>`;
+}
+
+function selectOpt(qId, val, type) {
+  if (type === 'single') {
+    answers[qId] = val;
+    document.querySelectorAll('.opt-card').forEach(el => el.classList.remove('selected'));
+    document.querySelector(`.opt-card[data-val="${val}"]`).classList.add('selected');
+    setTimeout(() => pushNextQuestion(), 280);
+  } else {
+    if (!answers[qId]) answers[qId] = [];
+    const idx = answers[qId].indexOf(val);
+    if (idx === -1) answers[qId].push(val);
+    else answers[qId].splice(idx, 1);
+    document.querySelector(`.opt-card[data-val="${val}"]`).classList.toggle('selected');
+  }
+}
+
+function confirmMulti(qId) {
+  if (!answers[qId] || answers[qId].length === 0) return;
+  pushNextQuestion();
+}
+
+function goBack() {
+  if (qHistory.length <= 1) { show('intro'); return; }
+  const leaving = qHistory.pop();
+  delete answers[leaving];
+  const prev = questions.find(q => q.id === qHistory[qHistory.length-1]);
+  if (prev) renderQuestion(prev);
+  // update progress
+  const active = getActiveQuestions();
+  const idx = active.findIndex(x => x.id === prev.id);
+  const total = active.length;
+  document.getElementById('progress-fill').style.width = ((idx / total) * 100) + '%';
+  document.getElementById('progress-text').textContent = `${idx+1} / ${total}`;
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ══════════════════════════════════════════════
+   RESULT LOGIC
+══════════════════════════════════════════════ */
+const scalpTypes = {
+  dry:       { name:'건성 두피',   headline:'수분이 그리운, 조용히 목마른 두피' },
+  oily:      { name:'지성 두피',   headline:'넘치는 에너지가 균형을 찾고 있는 두피' },
+  sensitive: { name:'민감성 두피', headline:'섬세하게 반응하는, 예민한 감수성의 두피' },
+  balanced:  { name:'정상 두피',   headline:'건강한 균형을 갖춘, 가꾸면 더 빛나는 두피' },
+};
+
+function computeGoodRows(a) {
+  const rows = [];
+  if (a.scalp_feel === 'dry') rows.push({ kw:'수분 관리', text:'두피가 건조한 편이라 피지 및 트러블이 적어요. 두피와 모발에 필요한 유수분을 적절하게 전하는 케어를 시작하세요.' });
+  if (a.scalp_feel === 'oily') rows.push({ kw:'민감 없음', text:'피지 분비가 활발하다는 것은 두피 세포 활동이 왕성하다는 신호이기도 해요. 적절한 케어로 균형을 잡아주면 좋아요.' });
+  if (a.scalp_feel === 'sensitive') rows.push({ kw:'자기 인식', text:'두피가 예민하다는 것을 알고 계신다는 것 자체가 이미 중요한 케어의 시작이에요.' });
+  if (a.scalp_feel === 'balanced') rows.push({ kw:'건강한 상태', text:'유수분 밸런스가 잘 맞는 두피를 갖고 계세요. 지금의 상태를 유지하는 것이 가장 좋은 케어예요.' });
+  if (a.wash_time === 'night') rows.push({ kw:'밤 샴푸', text:'잠자기 전 감는 습관은 수면 중 두피 재생을 도와줘 매우 좋은 루틴이에요.' });
+  return rows;
+}
+
+function computeWarnRows(a) {
+  const rows = [];
+  if (a.scalp_feel === 'oily') rows.push({ kw:'피지 조절', text:'피지 분비가 과하면 모공이 막혀 탈모와 비듬으로 이어질 수 있어요. 정기적인 두피 클렌징이 중요해요.' });
+  if (a.scalp_feel === 'dry') rows.push({ kw:'수분 보충', text:'두피가 건조하면 모발이 힘을 잃고 가늘어질 수 있어요. 샴푸 후 영양 마스크로 수분을 채워주세요.' });
+  if (a.hair_loss === 'yes') rows.push({ kw:'탈모 진행', text:'탈모가 진행 중일 때는 두피의 혈액 순환 촉진과 뿌리 강화가 가장 중요해요. 조기에 관리를 시작할수록 효과가 커요.' });
+  if (a.dandruff_yn === 'yes') {
+    const map = {
+      dry_flake:  { kw:'각질 관리', text:'하얀 가루 각질은 두피 악성 건조의 신호예요. 수분 공급과 부드러운 클렌징을 함께 해주세요.' },
+      big_flake:  { kw:'각질 관리', text:'큰 각질은 두피 장벽이 약해진 신호예요. 자극을 최소화하고 장벽을 강화하는 케어가 필요해요.' },
+      oily_flake: { kw:'각질 관리', text:'기름진 각질은 피지와 각질이 뒤엉긴 상태예요. 딥 클렌징으로 모공을 청소해 주는 것이 중요해요.' },
+      pore_flake: { kw:'각질 관리', text:'피지 과다로 인한 비듬은 두피 미생물 과 pH 균형이 깨진 상태예요. 전문적인 스케일링 케어가 필요해요.' },
+    };
+    if (map[a.dandruff_type]) rows.push(map[a.dandruff_type]);
+  }
+  if (a.goal && a.goal.includes('repair')) rows.push({ kw:'모발 손상', text:'염색·열 시술로 인한 손상은 모발 내부 단백질 결합이 끊어진 상태예요. 집중 트리트먼트로 빠르게 회복시켜줄 수 있어요.' });
+  if (a.wash_time === 'morning') rows.push({ kw:'샴푸 타이밍', text:'아침 샴푸는 상쾌하지만, 밤에 감아 노폐물을 제거하면 두피 재생에 더 유리해요.' });
+  if (a.wash_time === 'both') rows.push({ kw:'과도한 세정', text:'하루 두 번 샴푸는 두피 보호막을 손상시킬 수 있어요. 저자극 샴푸를 사용하거나 한 번은 물로만 헹궈주세요.' });
+  return rows.slice(0, 3);
+}
+
+function computeSteps(a) {
+  const steps = [];
+  if (a.scalp_feel === 'oily' || (a.dandruff_yn === 'yes' && ['oily_flake','pore_flake'].includes(a.dandruff_type)))
+    steps.push({ title:'두피 스케일링', text:'일주일에 한 번, 샴푸 전 두피 스케일러로 쌓인 피지와 각질을 먼저 녹여주세요.' });
+  if (a.scalp_feel === 'dry' || a.dandruff_yn === 'yes')
+    steps.push({ title:'영양 마스크', text:'샴푸 후 3~5분 영양 마스크를 두피와 모발에 골고루 발라 수분과 단백질을 채워주세요.' });
+  if (a.hair_loss === 'yes') {
+    steps.push({ title:'두피 마사지', text:'손가락 끝으로 두피를 원을 그리며 3~5분 마사지하면 혈행이 촉진돼 모발 성장에 도움이 돼요.' });
+    steps.push({ title:'야간 루틴', text:'취침 전 두피 세럼을 뿌리에 분사하고 가볍게 마사지하세요. 수면 중 흡수되며 탈모 케어 효과가 극대화돼요.' });
+  }
+  if (a.scalp_feel === 'sensitive')
+    steps.push({ title:'저자극 루틴', text:'뜨거운 물 대신 미지근한 물로 세정하고, 향이 강한 제품 사용을 줄여 두피 자극을 최소화하세요.' });
+  if (a.goal && a.goal.includes('repair'))
+    steps.push({ title:'트리트먼트', text:'샴푸 후 헤어 마스크를 모발 중간부터 끝까지 충분히 바르고 3~5분 후 헹궈주세요. 매주 1~2회가 이상적이에요.' });
+  steps.push({ title:'올바른 건조', text:'샴푸 후 수건으로 살살 눌러 물기를 제거한 뒤, 두피 먼저 말리고 모발 순서로 건조해 주세요.' });
+  return steps.slice(0, 3);
+}
+
+function computeProducts(a) {
+  const g = a.goal || [];
+  if (g.includes('repair') || a.scalp_feel === 'dry') {
+    return [
+      { step:'CLEANSE', name:'Amino Bond Repair\nShampoo', vol:'250ml', tag:'손상·건성' },
+      { step:'CARE', name:'Amino Bond Repair\nEssential Masque', vol:'250ml', tag:'딥 트리트먼트' },
+      { step:'FINISH', name:'Amino Bond Repair\nKeratin Hair Serum', vol:'100ml', tag:'BEST ★' },
+    ];
+  }
+  if (a.hair_loss === 'yes') {
+    return [
+      { step:'CLEANSE', name:'C.TOX Blooming\nShampoo', vol:'250ml', tag:'탈모 케어' },
+      { step:'CARE', name:'C.TOX Blooming\nEssential Masque', vol:'250ml', tag:'뿌리 강화' },
+      { step:'FINISH', name:'C.TOX Blooming\nRoot Serum', vol:'95ml', tag:'BEST ★' },
+    ];
+  }
+  if (a.dandruff_yn === 'yes') {
+    return [
+      { step:'CLEANSE', name:'C.TOX Blooming\nShampoo', vol:'250ml', tag:'비듬 케어' },
+      { step:'CARE', name:'C.TOX Blooming\nEssential Masque', vol:'250ml', tag:'두피 진정' },
+      { step:'FINISH', name:'C.TOX Blooming\nRoot Serum', vol:'95ml', tag:'BEST ★' },
+    ];
+  }
+  if (a.scalp_feel === 'oily') {
+    return [
+      { step:'CLEANSE', name:'C.TOX Blooming\nShampoo', vol:'250ml', tag:'지성 두피' },
+      { step:'CARE', name:'C.TOX Blooming\nEssential Masque', vol:'250ml', tag:'피지 조절' },
+      { step:'FINISH', name:'C.TOX Blooming\nRoot Serum', vol:'95ml', tag:'BEST ★' },
+    ];
+  }
+  return [
+    { step:'CLEANSE', name:'Amino Bond Repair\nShampoo', vol:'250ml', tag:'일반 케어' },
+    { step:'CARE', name:'Amino Bond Repair\nEssential Masque', vol:'250ml', tag:'보습' },
+    { step:'FINISH', name:'Camellia Silk\nOil Essence', vol:'33ml', tag:'BEST ★' },
+  ];
+}
+
+function computeRoutineTitle(a) {
+  if (a.hair_loss === 'yes') return '탈모 집중 케어 루틴';
+  if (a.goal && a.goal.includes('repair')) return '손상 회복 케어 루틴';
+  if (a.scalp_feel === 'oily') return '지성 두피 케어 루틴';
+  if (a.scalp_feel === 'dry') return '건성 두피 케어 루틴';
+  return '두피 건강 케어 루틴';
+}
+
+function showResult() {
+  const a = answers;
+  const scalp = scalpTypes[a.scalp_feel] || scalpTypes.balanced;
+  const goodRows = computeGoodRows(a);
+  const warnRows = computeWarnRows(a);
+  const steps = computeSteps(a);
+  const products = computeProducts(a);
+  const routineTitle = computeRoutineTitle(a);
+  const showScaler = a.dandruff_yn === 'yes';
+
+  const goodHTML = goodRows.map(r => `
+    <div class="insight-row">
+      <div class="insight-dot good"></div>
+      <div><div class="insight-kw">${r.kw}</div><div class="insight-text">${r.text}</div></div>
+    </div>`).join('');
+
+  const warnHTML = warnRows.map(r => `
+    <div class="insight-row">
+      <div class="insight-dot warn"></div>
+      <div><div class="insight-kw">${r.kw}</div><div class="insight-text">${r.text}</div></div>
+    </div>`).join('');
+
+  const stepsHTML = steps.map((s,i) => `
+    <div class="step-row">
+      <div class="step-num">${i+1}</div>
+      <div><div class="step-title">${s.title}</div><div class="step-text">${s.text}</div></div>
+    </div>`).join('');
+
+  const prodHTML = products.map(p => `
+    <div class="product-card">
+      <div class="product-step-label">${p.step}</div>
+      <div class="product-name">${p.name.replace('\n','<br>')}</div>
+      <div class="product-vol">${p.vol}</div>
+      <div class="product-tag">${p.tag}</div>
+    </div>`).join('');
+
+  const scalerTip = showScaler ? `
+    <div class="tip-box">
+      <strong>Pro Scaler 팁</strong>
+      미용실에서는 샴푸 전에 스케일러를 사용하지만, 비듬이 심하면 집에서도 사용하는 것을 권장합니다.
+      <br><br><span style="font-weight:400;color:var(--forest)">C.TOX Blooming Essential Pro Scaler 200ml</span>
+    </div>` : '';
+
+  document.getElementById('result-content').innerHTML = `
+    <div class="result-logo-row">
+      <div class="logo">SALONHANDS</div>
+    </div>
+
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div class="scalp-badge">${scalp.name}</div>
+      <h2 class="result-headline">${scalp.headline}</h2>
+      <p class="result-sub">www.salonhands.com</p>
+    </div>
+
+    ${goodRows.length ? `<div class="insight-section">
+      <div class="insight-section-title">✓ 잘하고 있는 포인트</div>
+      ${goodHTML}
+    </div>` : ''}
+
+    ${warnRows.length ? `<div class="insight-section">
+      <div class="insight-section-title">! 주의 포인트</div>
+      ${warnHTML}
+    </div>` : ''}
+
+    <div class="result-divider"></div>
+
+    ${steps.length ? `<div class="insight-section">
+      <div class="insight-section-title">케어 스텝</div>
+      <div class="steps-list">${stepsHTML}</div>
+    </div>` : ''}
+
+    <div class="result-divider"></div>
+
+    <div class="routine-title">${routineTitle}</div>
+    <div class="products-grid">${prodHTML}</div>
+    ${scalerTip}
+
+    <div class="restart-row">
+      <button class="btn-ghost" onclick="startQuiz()">← 다시 진단하기</button>
+      <button class="btn-primary" onclick="window.open('https://www.salonhands.com','_blank')">
+        제품 보러가기 →
+      </button>
+    </div>
+  `;
+
+  show('result');
+}
+</script>
+</body>
+</html>
